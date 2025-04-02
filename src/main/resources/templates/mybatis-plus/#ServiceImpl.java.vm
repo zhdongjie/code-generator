@@ -1,0 +1,16 @@
+package ${packagePath}.service.impl;
+
+import ${packagePath}.service.${module.moduleName}Service;
+import ${packagePath}.mapper.${module.moduleName}Mapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+
+@Service
+public class ${module.moduleName}ServiceImpl implements ${module.moduleName}Service {
+
+    @Resource
+    private ${module.moduleName}Mapper ${module.moduleNameFirstLetterLower}Mapper;
+
+}

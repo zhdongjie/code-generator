@@ -1,0 +1,78 @@
+{
+  "mybatis-plus": [
+    {
+      "templateName": "#Entity.java.vm",
+      "templatePackagePath": "domain.entity"
+    },
+    {
+      "templateName": "#Mapper.java.vm",
+      "templatePackagePath": "mapper"
+    },
+    {
+      "templateName": "Insert#Dto.java.vm",
+      "templatePackagePath": "domain.dto"
+    },
+    {
+      "templateName": "Update#Dto.java.vm",
+      "templatePackagePath": "domain.dto"
+    },
+    {
+      "templateName": "#Vo.java.vm",
+      "templatePackagePath": "domain.vo"
+    },
+    {
+      "templateName": "Select#Dto.java.vm",
+      "templatePackagePath": "domain.dto"
+    },
+    {
+      "templateName": "#Service.java.vm",
+      "templatePackagePath": "service"
+    },
+    {
+      "templateName": "#ServiceImpl.java.vm",
+      "templatePackagePath": "service.impl"
+    },
+    {
+      "templateName": "#Controller.java.vm",
+      "templatePackagePath": "controller"
+    }
+  ],
+  "mybatis-flex": [
+    {
+      "templateName": "#Entity.java.vm",
+      "templatePackagePath": "domain.entity"
+    },
+    {
+      "templateName": "#Mapper.java.vm",
+      "templatePackagePath": "mapper"
+    },
+    {
+      "templateName": "Insert#Dto.java.vm",
+      "templatePackagePath": "domain.dto"
+    },
+    {
+      "templateName": "Update#Dto.java.vm",
+      "templatePackagePath": "domain.dto"
+    },
+    {
+      "templateName": "#Vo.java.vm",
+      "templatePackagePath": "domain.vo"
+    },
+    {
+      "templateName": "Select#Dto.java.vm",
+      "templatePackagePath": "domain.dto"
+    },
+    {
+      "templateName": "#Service.java.vm",
+      "templatePackagePath": "service"
+    },
+    {
+      "templateName": "#ServiceImpl.java.vm",
+      "templatePackagePath": "service.impl"
+    },
+    {
+      "templateName": "#Controller.java.vm",
+      "templatePackagePath": "controller"
+    }
+  ]
+}

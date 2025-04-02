@@ -1,0 +1,34 @@
+package ${packagePath}.domain.dto;
+
+#foreach($import in $importList)
+import $import;
+#end
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Select${module.moduleName}Dto {
+
+#foreach($field in $module.fieldList)
+    #if($!{field.fieldSupportConfig.supportSearch})
+    #if($!{field.comment})
+    /**
+     * ${field.comment}
+     */#end
+
+    #if($!{field.fieldSupportConfig.supportSearchRange})
+    private ${field.fieldType} ${field.fieldName}Start;
+
+    private ${field.fieldType} ${field.fieldName}End;
+    #end
+    #if(!$!{field.fieldSupportConfig.supportSearchRange})
+    private ${field.fieldType} ${field.fieldName};
+    #end
+
+    #end
+#end
+}

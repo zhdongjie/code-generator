@@ -1,0 +1,9 @@
+server:
+  port: 9098
+
+spring:
+  application:
+    name: code-generator
+logging:
+  level:
+    root: INFO
