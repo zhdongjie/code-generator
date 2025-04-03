@@ -50,6 +50,11 @@ public class FieldBo {
     private Integer columnDecimalPoint;
 
     /**
+     * 默认值
+     */
+    private Object columnDefaultValue;
+
+    /**
      * 注释
      */
     private String comment;

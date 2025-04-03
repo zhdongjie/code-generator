@@ -14,16 +14,29 @@ public class SwaggerConfigBo {
     /**
      * 是否启用
      */
-    private boolean enable;
+    private boolean enabled;
+
+    /**
+     * 标题
+     */
+    private String title;
 
     /**
      * 描述
      */
     private String description;
 
+    /**
+     * 版本
+     */
+    private String version;
+
+
     private SwaggerConfigBo(SwaggerConfigDto swaggerConfig) {
-        this.enable = swaggerConfig.isEnable();
+        this.enabled = swaggerConfig.isEnabled();
+        this.title = swaggerConfig.getTitle();
         this.description = swaggerConfig.getDescription();
+        this.version = swaggerConfig.getVersion();
     }
 
     public static SwaggerConfigBo of(SwaggerConfigDto swaggerConfig) {

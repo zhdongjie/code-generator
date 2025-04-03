@@ -1,8 +1,8 @@
 package ${packagePath}.domain.dto;
 
-#foreach($import in $importList)
-import $import;
-#end
+    #foreach($import in $importList)
+    import $import;
+    #end
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Insert${module.moduleName}Dto {
 
-#foreach($field in $module.fieldList)
-    #if($!{field.fieldSupportConfig.supportMaintenance})
-    #if(${field.comment})
-    /**
-     * ${field.comment}
-     */#end
+    #foreach($field in $module.fieldList)
+        #if($!{field.fieldSupportConfig.supportMaintenance})
+            #if(${field.comment})
+                /**
+                 * ${field.comment}
+                 */#end
 
-    private $field.fieldType $!{field.fieldName};
+            private $field.fieldType $!{field.fieldName};
 
+        #end
     #end
-#end
 }

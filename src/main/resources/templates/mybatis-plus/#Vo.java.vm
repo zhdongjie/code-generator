@@ -1,8 +1,8 @@
 package ${packagePath}.domain.vo;
 
-#foreach($import in $importList)
-import $import;
-#end
+    #foreach($import in $importList)
+    import $import;
+    #end
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -14,18 +14,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ${module.moduleName}Vo {
 
-#foreach($field in $module.fieldList)
-    #if($!{field.fieldSupportConfig.supportView})
-    #if($!{field.comment})
-    /**
-     * ${field.comment}
-     */#end
+    #foreach($field in $module.fieldList)
+        #if($!{field.fieldSupportConfig.supportView})
+            #if($!{field.comment})
+                /**
+                 * ${field.comment}
+                 */#end
 
-    #if($!{field.format})
-    @JsonFormat(pattern = "$!{field.format}")
-    #end
-    private ${field.fieldType} ${field.fieldName};
+            #if($!{field.format})
+            @JsonFormat(pattern = "$!{field.format}")
+            #end
+        private ${field.fieldType} ${field.fieldName};
 
+        #end
     #end
-#end
 }

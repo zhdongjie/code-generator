@@ -1,114 +1,117 @@
 package com.original.generator.core.utils;
 
-
 import com.original.generator.core.domain.bo.BusinessModuleBo;
 import com.original.generator.core.domain.bo.FieldBo;
 import com.original.generator.core.domain.bo.GenerateProjectBo;
+import com.original.generator.core.exception.SqlGenerationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class GenerateSqlScriptUtils {
+    private static final String DEFAULT_CHARSET = "utf8mb4";
+    private static final String DEFAULT_COLLATION = "utf8mb4_general_ci";
+    private static final String DEFAULT_ENGINE = "InnoDB";
 
+    public String generateSqlScript(GenerateProjectBo project) {
+        if (project == null) {
+            throw new SqlGenerationException("Project cannot be null");
+        }
 
-    public static final String DATABASE_CHARACTER = "utf8mb4";
-    public static final String DATABASE_COLLATE = "utf8mb4_general_ci";
+        List<BusinessModuleBo> modules = project.getBusinessModuleList();
+        if (modules == null || modules.isEmpty()) {
+            throw new SqlGenerationException("No business modules found in project");
+        }
 
-    public static String generateSqlScript(GenerateProjectBo generateProject) {
-        List<BusinessModuleBo> businessModules = generateProject.getBusinessModuleList();
-        boolean cover = generateProject.isCover();
-        StringBuilder sqlScript = new StringBuilder();
-        businessModules.forEach(businessModule -> {
-            String moduleSqlScript = generateModuleSqlScript(businessModule, cover);
-            sqlScript.append(moduleSqlScript)
-                    .append("\n");
-        });
-        return sqlScript.toString();
+        return modules.stream()
+                .map(this::generateModuleSqlScript)
+                .collect(Collectors.joining("\n\n"));
     }
 
-    private static String generateModuleSqlScript(BusinessModuleBo businessModule, boolean cover) {
-        String moduleName = businessModule.getModuleName();
-        // 数据库表名
+    private String generateModuleSqlScript(BusinessModuleBo module) {
+        if (module == null) {
+            throw new SqlGenerationException("Module cannot be null");
+        }
+
+        String moduleName = module.getModuleName();
+        if (moduleName == null || moduleName.trim().isEmpty()) {
+            throw new SqlGenerationException("Module name cannot be null or empty");
+        }
+
+        List<FieldBo> fields = module.getFieldList();
+        if (fields == null || fields.isEmpty()) {
+            throw new SqlGenerationException("No fields found in module: " + moduleName);
+        }
+
         String tableName = StringConverterUtil.camelToLowerCaseUnderscore(moduleName);
-        String comment = businessModule.getComment();
+        StringBuilder sql = new StringBuilder();
+        sql.append("CREATE TABLE IF NOT EXISTS `").append(tableName).append("` (\n");
 
-        List<FieldBo> fields = businessModule.getFieldList();
-        if (fields.isEmpty()) {
-            return "";
-        }
-        FieldBo primaryKeyField = businessModule.getFieldList()
-                .stream()
+        // 添加字段定义
+        String fieldsSql = fields.stream()
+                .map(this::getColumnSqlScript)
+                .collect(Collectors.joining(",\n"));
+        sql.append(fieldsSql);
+
+        // 添加主键
+        String primaryKey = fields.stream()
                 .filter(FieldBo::isPrimaryKey)
-                .findFirst()
-                .orElse(null);
-
-        if (primaryKeyField == null) {
-            return "";
+                .map(field -> "`" + field.getColumnName() + "`")
+                .collect(Collectors.joining(", "));
+        if (!primaryKey.isEmpty()) {
+            sql.append(",\nPRIMARY KEY (").append(primaryKey).append(")");
         }
 
-        StringBuilder sqlScript = new StringBuilder();
-        if (cover) {
-            sqlScript.append("DROP TABLE IF EXISTS `").append(tableName).append("`;").append("\n")
-                    .append("CREATE TABLE `").append(tableName).append("` (").append("\n");
-        } else {
-            sqlScript.append("CREATE TABLE IF NOT EXISTS `").append(tableName).append("` (").append("\n");
-        }
-        // 拼接每个字段对应的SQL
-        businessModule.getFieldList().forEach(fieldBo -> sqlScript.append(getColumnSqlScript(fieldBo)));
+        // 添加表选项
+        sql.append("\n) ENGINE=").append(DEFAULT_ENGINE)
+                .append(" DEFAULT CHARSET=").append(DEFAULT_CHARSET)
+                .append(" COLLATE=").append(DEFAULT_COLLATION)
+                .append(" COMMENT='").append(module.getComment()).append("';");
 
-        // 拼接主键对应的SQL
-        // 字段名
-        String primaryKeyColumnName = primaryKeyField.getColumnName();
-        String primaryKeySql = "  PRIMARY KEY (`" + primaryKeyColumnName + "`) USING BTREE";
-        sqlScript.append(primaryKeySql);
-
-        // 添加主键和表注释
-        sqlScript.append("\n) ENGINE = InnoDB CHARACTER SET = ").append(DATABASE_CHARACTER)
-                .append(" COLLATE = ").append(DATABASE_COLLATE)
-                .append(" COMMENT = '").append(comment).append("' ROW_FORMAT = Dynamic;\n");
-
-        return sqlScript.toString();
+        return sql.toString();
     }
 
-    private static String getColumnSqlScript(FieldBo field) {
-        StringBuilder columnSqlScript = new StringBuilder();
-        // 字段名
+    private String getColumnSqlScript(FieldBo field) {
+        if (field == null) {
+            throw new SqlGenerationException("Field cannot be null");
+        }
+
         String columnName = field.getColumnName();
-        // 字段类型
-        String columnType = field.getColumnType();
-        columnSqlScript.append("  `")
-                .append(columnName).append("` ")
-                .append(columnType);
+        if (columnName == null || columnName.trim().isEmpty()) {
+            throw new SqlGenerationException("Column name cannot be null or empty");
+        }
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("  `").append(columnName).append("` ").append(field.getColumnType());
+
+        // 添加长度和小数点
         if (field.getColumnLength() != null) {
-            columnSqlScript.append("(")
-                    .append(field.getColumnLength());
+            sql.append("(").append(field.getColumnLength());
             if (field.getColumnDecimalPoint() != null) {
-                columnSqlScript.append(",")
-                        .append(field.getColumnDecimalPoint());
+                sql.append(",").append(field.getColumnDecimalPoint());
             }
-            columnSqlScript.append(")");
+            sql.append(")");
         }
 
-        if (field.getFieldType().equals("String")) {
-            columnSqlScript.append(" CHARACTER SET ")
-                    .append(DATABASE_CHARACTER)
-                    .append(" COLLATE ")
-                    .append(DATABASE_COLLATE);
-        }
-
+        // 添加非空约束
         if (field.isPrimaryKey()) {
-            columnSqlScript.append(" NOT NULL");
-        } else {
-            columnSqlScript.append(" NULL DEFAULT NULL");
+            sql.append(" NOT NULL");
         }
 
-        // 添加字段注释
-        if (field.getComment() != null) {
-            columnSqlScript.append(" COMMENT '")
-                    .append(field.getComment())
-                    .append("'");
+        // 添加默认值
+        if (field.getColumnDefaultValue() != null) {
+            sql.append(" DEFAULT ").append(field.getColumnDefaultValue());
         }
-        columnSqlScript.append(",\n");
-        return columnSqlScript.toString();
+
+        // 添加注释
+        if (field.getComment() != null && !field.getComment().trim().isEmpty()) {
+            sql.append(" COMMENT '").append(field.getComment()).append("'");
+        }
+
+        return sql.toString();
     }
-
 }

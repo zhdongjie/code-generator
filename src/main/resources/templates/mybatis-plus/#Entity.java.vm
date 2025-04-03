@@ -1,8 +1,8 @@
 package ${packagePath}.domain.entity;
 
-#foreach($import in $importList)
-import $import;
-#end
+    #foreach($import in $importList)
+    import $import;
+    #end
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -18,19 +18,19 @@ import lombok.NoArgsConstructor;
 @TableName("`$module.tableName`")
 public class ${module.moduleName}Entity {
 
-#foreach($field in $module.fieldList)
-#if(${field.comment})
-    /**
-     * ${field.comment}
-     */#end
+    #foreach($field in $module.fieldList)
+        #if(${field.comment})
+            /**
+             * ${field.comment}
+             */#end
 
-    #if($field.primaryKey)
-    @TableId(type = IdType.ASSIGN_ID, value = "`$field.columnName`")
-    #end
-    #if(!$field.primaryKey)
-    @TableField(value = "`$field.columnName`")
-    #end
+        #if($field.primaryKey)
+        @TableId(type = IdType.ASSIGN_ID, value = "`$field.columnName`")
+        #end
+        #if(!$field.primaryKey)
+        @TableField(value = "`$field.columnName`")
+        #end
     private $field.fieldType $!{field.fieldName};
 
-#end
+    #end
 }

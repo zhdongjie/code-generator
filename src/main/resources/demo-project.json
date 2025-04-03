@@ -1,0 +1,149 @@
+{
+  "projectName": "Demo",
+  "description": "Demo project for code generation",
+  "modules": [
+    {
+      "moduleName": "User",
+      "comment": "用户",
+      "authentication": true,
+      "swaggerConfig": {
+        "enabled": true,
+        "title": "User API",
+        "description": "用户管理接口",
+        "version": "1.0.0"
+      },
+      "businessSupportConfig": {
+        "supportExport": true,
+        "supportImport": true,
+        "supportDeleteBatch": true,
+        "supportLog": true
+      },
+      "fieldList": [
+        {
+          "name": "name",
+          "type": "String",
+          "length": 16,
+          "comment": "姓名",
+          "fieldRule": {
+            "required": true,
+            "pattern": "^[a-zA-Z0-9_-]{4,16}$"
+          },
+          "fieldSupportConfig": {
+            "supportSearch": true,
+            "supportMaintenance": true,
+            "supportView": true,
+            "supportImport": true,
+            "supportExport": true
+          }
+        },
+        {
+          "name": "remark",
+          "type": "String",
+          "length": -1,
+          "comment": "备注",
+          "fieldRule": {
+            "required": true
+          },
+          "fieldSupportConfig": {
+            "supportMaintenance": true,
+            "supportView": true,
+            "supportImport": true,
+            "supportExport": true
+          }
+        },
+        {
+          "name": "createDate",
+          "type": "Date",
+          "comment": "创建时间",
+          "format": "yyyy-MM-dd HH:mm:ss",
+          "fieldRule": {
+            "required": true
+          },
+          "fieldSupportConfig": {
+            "supportView": true,
+            "supportImport": true,
+            "supportExport": true
+          }
+        },
+        {
+          "name": "deleteFlag",
+          "type": "Boolean",
+          "comment": "删除标志",
+          "fieldSupportConfig": {
+            "supportView": true,
+            "supportImport": true,
+            "supportExport": true
+          }
+        },
+        {
+          "name": "money",
+          "type": "BigDecimal",
+          "length": 18,
+          "decimalPoint": 5,
+          "comment": "金额",
+          "fieldRule": {
+            "minValue": 0
+          },
+          "fieldSupportConfig": {
+            "supportSearch": true,
+            "supportSearchRange": true,
+            "supportMaintenance": true,
+            "supportView": true,
+            "supportImport": true,
+            "supportExport": true
+          }
+        },
+        {
+          "name": "age",
+          "type": "Integer",
+          "length": 3,
+          "comment": "年龄",
+          "fieldRule": {
+            "minValue": 0,
+            "maxValue": 200
+          },
+          "fieldSupportConfig": {
+            "supportSearch": true,
+            "supportSearchRange": true,
+            "supportMaintenance": true,
+            "supportView": true,
+            "supportImport": true,
+            "supportExport": true
+          }
+        },
+        {
+          "name": "id",
+          "type": "Integer",
+          "length": 20,
+          "comment": "主键",
+          "primaryKey": true,
+          "fieldRule": {
+            "required": true,
+            "minValue": 0
+          },
+          "fieldSupportConfig": {
+            "supportImport": true,
+            "supportExport": true
+          }
+        }
+      ]
+    }
+  ],
+  "backendProject": {
+    "name": "new-project",
+    "groupId": "cn.zhang",
+    "artifactId": "new-project",
+    "version": "0.0.1",
+    "description": "Demo 0.0.1",
+    "author": "zhang",
+    "packagePath": "cn.zhang.project.test",
+    "port": "9090",
+    "databaseServer": "127.0.0.1",
+    "databasePort": "3306",
+    "database": "demo-database",
+    "databaseUser": "root",
+    "databasePassword": "root",
+    "backendGitPath": "https://gitee.com/zhang-dong-jie_admin/spring3-jwt-mybatisplus-template.git",
+    "backendTemplateName": "spring3-jwt-mybatisplus-template"
+  }
+} 

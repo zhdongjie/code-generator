@@ -4,6 +4,27 @@ server:
 spring:
   application:
     name: code-generator
+  datasource:
+    url: jdbc:mysql://127.0.0.1:13306/blog?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8
+    username: root
+    password: root
+
 logging:
   level:
     root: INFO
+
+
+velocity:
+  resource-loader: ds
+  class-resource-loader: org.apache.velocity.runtime.resource.loader.DataSourceResourceLoader
+  datasource-table: sys_velocity_template
+  datasource-key-column: id
+  datasource-template-column: template
+  datasource-timestamp-column: update_date
+  input-encoding: UTF-8
+  output-encoding: UTF-8
+  cache-enabled: true
+  cache-size: 100
+  precompile-enabled: true
+  hot-reload-enabled: false
+  modification-check-interval: 60
