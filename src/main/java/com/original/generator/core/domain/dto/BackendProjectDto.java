@@ -107,14 +107,12 @@ public class BackendProjectDto {
      * 后端项目模板路径
      */
     @NotBlank(message = "后端项目模板路径不能为空")
-    @Pattern(regexp = "^https?://.+$", message = "后端项目模板路径必须是有效的HTTP或HTTPS URL")
     private String backendGitPath;
 
     /**
      * 模板名
      */
-    @NotBlank(message = "模板名不能为空")
-    @Pattern(regexp = "^[a-zA-Z0-9_-]+$", message = "模板名只能包含字母、数字、下划线和连字符")
+    @NotBlank(message = "后端项目模板名不能为空")
     private String backendTemplateName;
 
 }

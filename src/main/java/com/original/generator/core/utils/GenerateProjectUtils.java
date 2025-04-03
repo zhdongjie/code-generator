@@ -1,11 +1,15 @@
 package com.original.generator.core.utils;
 
+import com.mybatisflex.core.query.QueryChain;
 import com.original.generator.core.domain.bo.*;
 import com.original.generator.core.domain.dto.BusinessModuleDto;
 import com.original.generator.core.domain.dto.FieldDto;
 import com.original.generator.core.domain.dto.GenerateProjectDto;
+import com.original.generator.core.domain.entity.VelocityGroupEntity;
 import com.original.generator.core.domain.info.TemplateProjectInfo;
 import com.original.generator.core.exception.FileOperationException;
+import com.original.generator.core.mapper.VelocityGroupMapper;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -17,26 +21,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
-public class GenerateProjectUtils {
-    private final JavaClassGeneratorUtils javaClassGeneratorUtils;
-    private final VelocityTemplateUtils velocityTemplateUtils;
-    private final GitUtils gitUtils;
-    private final ConfigLoaderUtils configLoaderUtils;
-    private final GenerateSqlScriptUtils generateSqlScriptUtils;
+import static com.original.generator.core.domain.entity.table.VelocityGroupTableDef.velocity_group;
 
-    public GenerateProjectUtils(
-            JavaClassGeneratorUtils javaClassGeneratorUtils,
-            VelocityTemplateUtils velocityTemplateUtils,
-            GitUtils gitUtils,
-            ConfigLoaderUtils configLoaderUtils,
-            GenerateSqlScriptUtils generateSqlScriptUtils) {
-        this.javaClassGeneratorUtils = javaClassGeneratorUtils;
-        this.velocityTemplateUtils = velocityTemplateUtils;
-        this.gitUtils = gitUtils;
-        this.configLoaderUtils = configLoaderUtils;
-        this.generateSqlScriptUtils = generateSqlScriptUtils;
-    }
+@Component
+@RequiredArgsConstructor
+public class GenerateProjectUtils {
+    private final CodeGeneratorUtils codeGeneratorUtils;
+    private final VelocityGroupMapper velocityGroupMapper;
 
     private void modifyFolder(Map<String, File> map, File folder, Set<String> ignoreNames) {
         if (folder == null) {
@@ -177,14 +168,14 @@ public class GenerateProjectUtils {
 
     private TemplateProjectInfo cloneRepoAndLoadConfig(String backendGitPath, String backendTemplatePath) {
         try {
-            gitUtils.cloneRepository(backendGitPath, backendTemplatePath);
-            return configLoaderUtils.loadConfig(backendTemplatePath + File.separator + "generate-config.json");
+            GitUtils.cloneRepository(backendGitPath, backendTemplatePath);
+            return ConfigLoaderUtils.loadConfig(backendTemplatePath + File.separator + "generate-config.json");
         } catch (Exception e) {
             throw new FileOperationException("Failed to clone repository or load config", e);
         }
     }
 
-    private FieldBo buildFields(FieldDto field) {
+    private static FieldBo buildFields(FieldDto field) {
         if (field == null) {
             throw new FileOperationException("Field cannot be null");
         }
@@ -250,13 +241,16 @@ public class GenerateProjectUtils {
         generateProjectBo.setProjectName(generateProjectDto.getProjectName());
         generateProjectBo.setFilePath(generateProjectDto.getFilePath());
         generateProjectBo.setCover(generateProjectDto.isCover());
-        generateProjectBo.setBackendProject(BackendProjectBo.of(generateProjectDto.getBackendProject()));
+        if (generateProjectDto.getBackendProject() != null) {
+            generateProjectBo.setBackendProject(BackendProjectBo.of(generateProjectDto.getBackendProject()));
+        }
+
         List<BusinessModuleBo> businessModuleBoList = buildBusinessModuleList(generateProjectDto.getBusinessModuleList());
         generateProjectBo.setBusinessModuleList(businessModuleBoList);
         return generateProjectBo;
     }
 
-    private List<BusinessModuleBo> buildBusinessModuleList(List<BusinessModuleDto> businessModuleList) {
+    private static List<BusinessModuleBo> buildBusinessModuleList(List<BusinessModuleDto> businessModuleList) {
         if (businessModuleList == null) {
             throw new FileOperationException("Business module list cannot be null");
         }
@@ -264,10 +258,23 @@ public class GenerateProjectUtils {
         return businessModuleList.stream()
                 .map(businessModule -> {
                     BusinessModuleBo businessModuleBo = new BusinessModuleBo();
-                    businessModuleBo.setModuleName(businessModule.getModuleName());
-                    businessModuleBo.setFieldList(businessModule.getFieldList().stream()
-                            .map(this::buildFields)
-                            .collect(Collectors.toList()));
+                    String moduleName = businessModule.getModuleName();
+                    businessModuleBo.setModuleName(moduleName);
+                    String firstCharLowerCase = Character.toLowerCase(moduleName.charAt(0)) + moduleName.substring(1);
+                    businessModuleBo.setModuleNameFirstLetterLower(firstCharLowerCase);
+                    String tableName = StringConverterUtil.camelToLowerCaseUnderscore(businessModule.getModuleName());
+                    businessModuleBo.setTableName(tableName);
+                    businessModuleBo.setComment(businessModule.getComment());
+                    businessModuleBo.setAuthentication(businessModule.isAuthentication());
+
+                    businessModuleBo.setSwaggerConfig(SwaggerConfigBo.of(businessModule.getSwaggerConfig()));
+                    businessModuleBo.setBusinessSupportConfig(BusinessSupportConfigBo.of(businessModule.getBusinessSupportConfig()));
+
+                    List<FieldDto> fieldList = businessModule.getFieldList();
+                    List<FieldBo> fieldBoList = fieldList.stream()
+                            .map(GenerateProjectUtils::buildFields)
+                            .collect(Collectors.toList());
+                    businessModuleBo.setFieldList(fieldBoList);
                     return businessModuleBo;
                 })
                 .collect(Collectors.toList());
@@ -282,7 +289,7 @@ public class GenerateProjectUtils {
             String sqlScriptPath = generateProject.getFilePath() + File.separator + generateProject.getProjectName() + File.separator + backendProject.getName() + File.separator + "src\\main\\resources" + File.separator + databaseSqlScript;
 
             String templateSqlScript = Files.readString(new File(sqlScriptPath).toPath(), StandardCharsets.UTF_8);
-            String sqlScript = generateSqlScriptUtils.generateSqlScript(generateProject);
+            String sqlScript = GenerateSqlScriptUtils.generateSqlScript(generateProject);
             templateSqlScript += "\n" + sqlScript;
             Files.write(Path.of(sqlScriptPath), templateSqlScript.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -293,26 +300,43 @@ public class GenerateProjectUtils {
     public void generate(GenerateProjectDto generateProject) {
         try {
             GenerateProjectBo generateProjectBo = buildGenerateProject(generateProject);
-            BackendProjectBo backendProject = generateProjectBo.getBackendProject();
-            String backendGitPath = backendProject.getBackendGitPath();
-            String generateFilePath = generateProjectBo.getFilePath() + File.separator + generateProjectBo.getProjectName();
-            String backendTemplateName = backendProject.getBackendTemplateName();
 
-            String backendTemplatePath = generateFilePath + File.separator + backendTemplateName;
             boolean cover = generateProjectBo.isCover();
-
-            TemplateProjectInfo templateProjectInfo = cloneRepoAndLoadConfig(backendGitPath, backendTemplatePath);
-
             List<String> ignoreNames = Arrays.asList(".git", "generate-config.json");
-            Map<String, File> templateFileMap = new HashMap<>();
 
-            modifyFolder(templateFileMap, new File(backendTemplatePath), new HashSet<>(ignoreNames));
-            createAndModifyFiles(templateFileMap, templateProjectInfo, generateProjectBo, cover);
-            deleteDirectory(Paths.get(backendTemplatePath));
-            writeSqlScript(templateProjectInfo, generateProjectBo);
+            // generate backend project
+            if (generateProjectBo.getBackendProject() != null) {
+                BackendProjectBo backendProject = generateProjectBo.getBackendProject();
+                String backendTemplateName = backendProject.getBackendTemplateName();
 
-            String generateTemplateGroup = "mybatis-plus";
-            javaClassGeneratorUtils.generate(generateTemplateGroup, generateFilePath, generateProjectBo);
+                VelocityGroupEntity velocityGroupEntity = velocityGroupMapper.selectOneWithRelationsByQuery(
+                        QueryChain.of(velocityGroupMapper)
+                                .select(velocity_group.all_columns)
+                                .from(velocity_group)
+                                .where(velocity_group.group_name.eq(backendTemplateName))
+                );
+                String backendGitPath = velocityGroupEntity.getGitRepositoryPath();
+                String generateFilePath = generateProjectBo.getFilePath() + File.separator + generateProjectBo.getProjectName();
+
+                String backendTemplatePath = generateFilePath + File.separator + backendTemplateName;
+
+                TemplateProjectInfo templateProjectInfo = cloneRepoAndLoadConfig(backendGitPath, backendTemplatePath);
+                Map<String, File> templateFileMap = new HashMap<>();
+
+                modifyFolder(templateFileMap, new File(backendTemplatePath), new HashSet<>(ignoreNames));
+
+                createAndModifyFiles(templateFileMap, templateProjectInfo, generateProjectBo, cover);
+
+                deleteDirectory(Paths.get(backendTemplatePath));
+
+                writeSqlScript(templateProjectInfo, generateProjectBo);
+
+                codeGeneratorUtils.generate(
+                        velocityGroupEntity,
+                        generateFilePath + File.separator + backendProject.getName(),
+                        generateProjectBo
+                );
+            }
         } catch (Exception e) {
             throw new FileOperationException("Failed to generate project", e);
         }

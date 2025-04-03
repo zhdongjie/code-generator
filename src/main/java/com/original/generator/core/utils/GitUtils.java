@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
-@Component
 public class GitUtils {
     private static final Logger logger = LoggerFactory.getLogger(GitUtils.class);
     private static final int DEFAULT_TIMEOUT_SECONDS = 300; // 5 minutes
@@ -22,7 +21,7 @@ public class GitUtils {
      * @param destinationPath 目标路径
      * @throws GitException 克隆失败时抛出
      */
-    public void cloneRepository(String repoUrl, String destinationPath) {
+    public static void cloneRepository(String repoUrl, String destinationPath) {
         cloneRepository(repoUrl, destinationPath, DEFAULT_TIMEOUT_SECONDS);
     }
 
@@ -34,7 +33,7 @@ public class GitUtils {
      * @param timeoutSeconds  超时时间（秒）
      * @throws GitException 克隆失败时抛出
      */
-    public void cloneRepository(String repoUrl, String destinationPath, int timeoutSeconds) {
+    public static void cloneRepository(String repoUrl, String destinationPath, int timeoutSeconds) {
         if (repoUrl == null || repoUrl.trim().isEmpty()) {
             throw new GitException("Repository URL cannot be null or empty");
         }

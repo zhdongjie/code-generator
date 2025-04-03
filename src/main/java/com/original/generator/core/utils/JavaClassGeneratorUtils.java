@@ -19,7 +19,6 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,47 +31,7 @@ public class JavaClassGeneratorUtils {
     private static final Map<String, Set<VelocityTemplateEntity>> templateGroupMap = Map.of(
             "mybatis-plus", Set.of(
                     new VelocityTemplateEntity(
-                            1L,
-                            1L,
-                            "package ${packagePath}.domain.entity;\n" +
-                                    "\n" +
-                                    "#foreach($import in $importList)\n" +
-                                    "import $import;\n" +
-                                    "#end\n" +
-                                    "\n" +
-                                    "import com.baomidou.mybatisplus.annotation.IdType;\n" +
-                                    "import com.baomidou.mybatisplus.annotation.TableField;\n" +
-                                    "import com.baomidou.mybatisplus.annotation.TableId;\n" +
-                                    "import com.baomidou.mybatisplus.annotation.TableName;\n" +
-                                    "import lombok.AllArgsConstructor;\n" +
-                                    "import lombok.Data;\n" +
-                                    "import lombok.NoArgsConstructor;\n" +
-                                    "\n" +
-                                    "@Data\n" +
-                                    "@AllArgsConstructor\n" +
-                                    "@NoArgsConstructor\n" +
-                                    "@TableName(\"`$module.tableName`\")\n" +
-                                    "public class ${module.moduleName}Entity {\n" +
-                                    "\n" +
-                                    "#foreach($field in $module.fieldList)\n" +
-                                    "#if(${field.comment})\n" +
-                                    "    /**\n" +
-                                    "     * ${field.comment}\n" +
-                                    "     */#end\n" +
-                                    "\n" +
-                                    "    #if($field.primaryKey)\n" +
-                                    "    @TableId(type = IdType.ASSIGN_ID, value = \"`$field.columnName`\")\n" +
-                                    "    #end\n" +
-                                    "    #if(!$field.primaryKey)\n" +
-                                    "    @TableField(value = \"`$field.columnName`\")\n" +
-                                    "    #end\n" +
-                                    "    private $field.fieldType $!{field.fieldName};\n" +
-                                    "\n" +
-                                    "#end\n" +
-                                    "}",
-                            new Date(),
-                            "templates/mybatis-plus/",
-                            "#Entity.java.vm"
+
                     )
             )
     );

@@ -106,7 +106,7 @@ public class BackendProjectBo {
 
     public static BackendProjectBo of(BackendProjectDto backendProject) {
         return ObjectUtils.isEmpty(backendProject)
-                ? new BackendProjectBo()
+                ? null
                 : new BackendProjectBo(backendProject);
     }
 

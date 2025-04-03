@@ -4,20 +4,16 @@ import com.original.generator.core.domain.bo.BusinessModuleBo;
 import com.original.generator.core.domain.bo.FieldBo;
 import com.original.generator.core.domain.bo.GenerateProjectBo;
 import com.original.generator.core.exception.SqlGenerationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
 public class GenerateSqlScriptUtils {
     private static final String DEFAULT_CHARSET = "utf8mb4";
     private static final String DEFAULT_COLLATION = "utf8mb4_general_ci";
     private static final String DEFAULT_ENGINE = "InnoDB";
 
-    public String generateSqlScript(GenerateProjectBo project) {
+    public static String generateSqlScript(GenerateProjectBo project) {
         if (project == null) {
             throw new SqlGenerationException("Project cannot be null");
         }
@@ -28,11 +24,11 @@ public class GenerateSqlScriptUtils {
         }
 
         return modules.stream()
-                .map(this::generateModuleSqlScript)
+                .map(GenerateSqlScriptUtils::generateModuleSqlScript)
                 .collect(Collectors.joining("\n\n"));
     }
 
-    private String generateModuleSqlScript(BusinessModuleBo module) {
+    private static String generateModuleSqlScript(BusinessModuleBo module) {
         if (module == null) {
             throw new SqlGenerationException("Module cannot be null");
         }
@@ -53,7 +49,7 @@ public class GenerateSqlScriptUtils {
 
         // 添加字段定义
         String fieldsSql = fields.stream()
-                .map(this::getColumnSqlScript)
+                .map(GenerateSqlScriptUtils::getColumnSqlScript)
                 .collect(Collectors.joining(",\n"));
         sql.append(fieldsSql);
 
@@ -75,7 +71,7 @@ public class GenerateSqlScriptUtils {
         return sql.toString();
     }
 
-    private String getColumnSqlScript(FieldBo field) {
+    private static String getColumnSqlScript(FieldBo field) {
         if (field == null) {
             throw new SqlGenerationException("Field cannot be null");
         }
