@@ -5,6 +5,7 @@ import com.original.generator.core.domain.dto.BackendProjectDto;
 import com.original.generator.core.domain.dto.BusinessModuleDto;
 import com.original.generator.core.domain.dto.GenerateProjectDto;
 import com.original.generator.core.utils.GenerateProjectUtils;
+import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -72,42 +73,11 @@ public class ProjectGeneratorTest {
     }
 
     // 用于解析demo-project.json的配置类
+    @Data
     private static class DemoProjectConfig {
         private String projectName;
         private String description;
         private List<BusinessModuleDto> modules;
         private BackendProjectDto backendProject;
-
-        public String getProjectName() {
-            return projectName;
-        }
-
-        public void setProjectName(String projectName) {
-            this.projectName = projectName;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public List<BusinessModuleDto> getModules() {
-            return modules;
-        }
-
-        public void setModules(List<BusinessModuleDto> modules) {
-            this.modules = modules;
-        }
-
-        public BackendProjectDto getBackendProject() {
-            return backendProject;
-        }
-
-        public void setBackendProject(BackendProjectDto backendProject) {
-            this.backendProject = backendProject;
-        }
     }
 }

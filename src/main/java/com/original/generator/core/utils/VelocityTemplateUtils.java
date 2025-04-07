@@ -2,6 +2,7 @@ package com.original.generator.core.utils;
 
 import com.original.generator.core.config.VelocityProperties;
 import com.original.generator.core.exception.TemplateException;
+import lombok.RequiredArgsConstructor;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.StringWriter;
 import java.util.Map;
@@ -21,19 +21,15 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@RequiredArgsConstructor
 public class VelocityTemplateUtils {
     private static final Logger logger = LoggerFactory.getLogger(VelocityTemplateUtils.class);
 
     private final VelocityProperties properties;
+    private final DataSource dataSource;
+
     private VelocityEngine velocityEngine;
     private final Map<String, Template> templateCache = new ConcurrentHashMap<>();
-
-    @Resource
-    private DataSource dataSource;
-
-    public VelocityTemplateUtils(VelocityProperties properties) {
-        this.properties = properties;
-    }
 
     @PostConstruct
     public void init() {
