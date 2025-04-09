@@ -1,5 +1,0 @@
-package ${packagePath}.service;
-
-public interface ${module.moduleName}Service {
-
-}

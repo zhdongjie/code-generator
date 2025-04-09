@@ -2,17 +2,51 @@ package com.original.generator.core.utils;
 
 import java.util.regex.Pattern;
 
+/**
+ * 字符串转换工具类
+ * 提供各种命名规范之间的转换功能，包括驼峰命名、下划线命名和短横线命名
+ * <p>
+ * 主要功能：
+ * 1. 驼峰命名与下划线命名的相互转换
+ * 2. 驼峰命名与短横线命名的相互转换
+ * 3. 支持大小写转换
+ * 4. 输入验证和异常处理
+ *
+ * @author 代码生成器团队
+ * @version 1.0
+ */
 public class StringConverterUtil {
 
+    /**
+     * 有效名称的正则表达式模式
+     * 只允许字母、数字和下划线
+     */
     private static final Pattern VALID_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+$");
+
+    /**
+     * 大写字母的正则表达式模式
+     * 用于识别驼峰命名中的单词边界
+     */
     private static final Pattern UPPER_CASE_PATTERN = Pattern.compile("(?=[A-Z])");
+
+    /**
+     * 下划线的正则表达式模式
+     * 用于分割下划线命名的单词
+     */
     private static final Pattern UNDERSCORE_PATTERN = Pattern.compile("_");
 
     /**
      * 将下划线命名转换为驼峰命名
+     * 支持首字母大小写控制
+     * <p>
+     * 步骤：
+     * 1. 验证输入字符串
+     * 2. 分割下划线命名的单词
+     * 3. 转换每个单词的首字母
+     * 4. 拼接结果
      *
      * @param underscore           下划线命名的字符串
-     * @param lowerCaseFirstLetter 是否将首字母小写
+     * @param lowerCaseFirstLetter 是否将首字母转换为小写
      * @return 驼峰命名的字符串
      * @throws IllegalArgumentException 如果输入字符串包含非法字符
      */
@@ -42,7 +76,8 @@ public class StringConverterUtil {
     }
 
     /**
-     * 将下划线命名转换为大驼峰命名
+     * 将下划线命名转换为大驼峰命名（帕斯卡命名）
+     * 所有单词首字母大写
      *
      * @param underscore 下划线命名的字符串
      * @return 大驼峰命名的字符串
@@ -54,6 +89,7 @@ public class StringConverterUtil {
 
     /**
      * 将下划线命名转换为小驼峰命名
+     * 第一个单词首字母小写，其余单词首字母大写
      *
      * @param underscore 下划线命名的字符串
      * @return 小驼峰命名的字符串
@@ -65,9 +101,16 @@ public class StringConverterUtil {
 
     /**
      * 将驼峰命名转换为下划线命名
+     * 支持大小写控制
+     * <p>
+     * 步骤：
+     * 1. 验证输入字符串
+     * 2. 识别驼峰命名的单词边界
+     * 3. 转换每个单词为指定大小写
+     * 4. 用下划线连接单词
      *
      * @param camelCase 驼峰命名的字符串
-     * @param upperCase 是否将下划线命名转换为大写
+     * @param upperCase 是否将结果转换为大写
      * @return 下划线命名的字符串
      * @throws IllegalArgumentException 如果输入字符串包含非法字符
      */
@@ -102,6 +145,7 @@ public class StringConverterUtil {
 
     /**
      * 将驼峰命名转换为大写下划线命名
+     * 所有单词转换为大写并用下划线连接
      *
      * @param camelCase 驼峰命名的字符串
      * @return 大写下划线命名的字符串
@@ -113,6 +157,7 @@ public class StringConverterUtil {
 
     /**
      * 将驼峰命名转换为小写下划线命名
+     * 所有单词转换为小写并用下划线连接
      *
      * @param camelCase 驼峰命名的字符串
      * @return 小写下划线命名的字符串
@@ -123,11 +168,17 @@ public class StringConverterUtil {
     }
 
     /**
-     * 将驼峰命名或下划线命名转换为短横杠命名
+     * 将驼峰命名或下划线命名转换为短横线命名
+     * 支持大小写控制
+     * <p>
+     * 步骤：
+     * 1. 验证输入字符串
+     * 2. 转换为下划线命名
+     * 3. 将下划线替换为短横线
      *
      * @param input     驼峰命名或下划线命名的字符串
-     * @param upperCase 是否将短横杠命名转换为大写
-     * @return 短横杠命名的字符串
+     * @param upperCase 是否将结果转换为大写
+     * @return 短横线命名的字符串
      * @throws IllegalArgumentException 如果输入字符串包含非法字符
      */
     private static String toKebabCase(String input, boolean upperCase) {
@@ -138,10 +189,11 @@ public class StringConverterUtil {
     }
 
     /**
-     * 将驼峰命名或下划线命名转换为大写短横杠命名
+     * 将驼峰命名或下划线命名转换为大写短横线命名
+     * 所有单词转换为大写并用短横线连接
      *
      * @param input 驼峰命名或下划线命名的字符串
-     * @return 大写短横杠命名的字符串
+     * @return 大写短横线命名的字符串
      * @throws IllegalArgumentException 如果输入字符串包含非法字符
      */
     public static String toUpperCaseKebabCase(String input) {
@@ -149,10 +201,11 @@ public class StringConverterUtil {
     }
 
     /**
-     * 将驼峰命名或下划线命名转换为小写短横杠命名
+     * 将驼峰命名或下划线命名转换为小写短横线命名
+     * 所有单词转换为小写并用短横线连接
      *
      * @param input 驼峰命名或下划线命名的字符串
-     * @return 小写短横杠命名的字符串
+     * @return 小写短横线命名的字符串
      * @throws IllegalArgumentException 如果输入字符串包含非法字符
      */
     public static String toLowerCaseKebabCase(String input) {
@@ -161,6 +214,11 @@ public class StringConverterUtil {
 
     /**
      * 验证输入字符串
+     * 检查字符串是否符合命名规范要求
+     * <p>
+     * 步骤：
+     * 1. 检查字符串是否为null
+     * 2. 检查字符串是否只包含合法字符
      *
      * @param input 要验证的字符串
      * @throws IllegalArgumentException 如果输入字符串包含非法字符

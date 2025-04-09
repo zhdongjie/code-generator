@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
@@ -50,7 +50,7 @@ public class FrontendProjectDto {
      * API基础URL
      */
     @NotBlank(message = "API基础URL不能为空")
-    @Pattern(regexp = "^https?://[\\w.-]+(?:\\.[\\w.-]+)*(?:\\:\\d+)?$", 
+    @Pattern(regexp = "^https?://[\\w.-]+(?:\\.[\\w.-]+)*(?:\\:\\d+)?$",
             message = "API基础URL格式不正确")
     private String apiBaseUrl;
 
@@ -58,7 +58,7 @@ public class FrontendProjectDto {
      * 前端模板Git地址
      */
     @NotBlank(message = "前端模板Git地址不能为空")
-    @Pattern(regexp = "^(https?|git)://[\\w.-]+(?:\\.[\\w.-]+)*(?:\\:\\d+)?/[\\w.-]+/[\\w.-]+(?:\\.git)?$", 
+    @Pattern(regexp = "^(https?|git)://[\\w.-]+(?:\\.[\\w.-]+)*(?:\\:\\d+)?/[\\w.-]+/[\\w.-]+(?:\\.git)?$",
             message = "Git地址格式不正确")
     private String frontendGitPath;
 

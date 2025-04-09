@@ -8,11 +8,51 @@ import com.original.generator.core.exception.SqlGenerationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * SQL脚本生成工具类
+ * 负责根据业务模块生成数据库表创建脚本
+ * <p>
+ * 主要功能：
+ * 1. 生成完整的建表SQL脚本
+ * 2. 支持字段类型、长度、默认值等配置
+ * 3. 自动处理主键和表注释
+ *
+ * @author 代码生成器团队
+ * @version 1.0
+ */
 public class GenerateSqlScriptUtils {
+    /**
+     * 默认字符集
+     * 使用utf8mb4以支持完整的Unicode字符集
+     */
     private static final String DEFAULT_CHARSET = "utf8mb4";
+
+    /**
+     * 默认排序规则
+     * 使用utf8mb4_general_ci以支持不区分大小写的排序
+     */
     private static final String DEFAULT_COLLATION = "utf8mb4_general_ci";
+
+    /**
+     * 默认存储引擎
+     * 使用InnoDB以支持事务和外键
+     */
     private static final String DEFAULT_ENGINE = "InnoDB";
 
+    /**
+     * 生成项目的SQL脚本
+     * 根据项目配置生成所有业务模块的建表语句
+     * <p>
+     * 步骤：
+     * 1. 验证项目对象
+     * 2. 获取业务模块列表
+     * 3. 为每个模块生成建表语句
+     * 4. 合并所有SQL语句
+     *
+     * @param project 项目配置对象
+     * @return 完整的SQL建表脚本
+     * @throws SqlGenerationException 如果生成过程中出现错误
+     */
     public static String generateSqlScript(GenerateProjectBo project) {
         if (project == null) {
             throw new SqlGenerationException("Project cannot be null");
@@ -28,6 +68,22 @@ public class GenerateSqlScriptUtils {
                 .collect(Collectors.joining("\n\n"));
     }
 
+    /**
+     * 生成单个模块的SQL脚本
+     * 根据业务模块配置生成建表语句
+     * <p>
+     * 步骤：
+     * 1. 验证模块对象
+     * 2. 获取字段列表
+     * 3. 生成表名
+     * 4. 生成字段定义
+     * 5. 添加主键约束
+     * 6. 设置表选项
+     *
+     * @param module 业务模块对象
+     * @return 模块的建表SQL语句
+     * @throws SqlGenerationException 如果生成过程中出现错误
+     */
     private static String generateModuleSqlScript(BusinessModuleBo module) {
         if (module == null) {
             throw new SqlGenerationException("Module cannot be null");
@@ -71,6 +127,22 @@ public class GenerateSqlScriptUtils {
         return sql.toString();
     }
 
+    /**
+     * 生成字段的SQL定义
+     * 根据字段配置生成列定义语句
+     * <p>
+     * 步骤：
+     * 1. 验证字段对象
+     * 2. 生成列名和类型
+     * 3. 添加长度和小数点配置
+     * 4. 添加非空约束
+     * 5. 添加默认值
+     * 6. 添加字段注释
+     *
+     * @param field 字段配置对象
+     * @return 字段的SQL定义
+     * @throws SqlGenerationException 如果生成过程中出现错误
+     */
     private static String getColumnSqlScript(FieldBo field) {
         if (field == null) {
             throw new SqlGenerationException("Field cannot be null");

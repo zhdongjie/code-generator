@@ -23,12 +23,50 @@ import java.util.stream.Collectors;
 
 import static com.original.generator.core.domain.entity.table.VelocityGroupTableDef.velocity_group;
 
+/**
+ * 项目生成工具类
+ * 负责根据模板生成完整的项目结构，包括：
+ * 1. 克隆模板仓库
+ * 2. 修改项目配置
+ * 3. 生成数据库脚本
+ * 4. 生成代码文件
+ * <p>
+ * 该类是代码生成器的核心组件，通过解析模板项目和业务模块信息，
+ * 生成符合项目规范的各种代码文件和配置文件。
+ *
+ * @author 代码生成器团队
+ * @version 1.0
+ */
 @Component
 @RequiredArgsConstructor
 public class GenerateProjectUtils {
+    /**
+     * 代码生成工具类
+     * 用于生成具体的代码文件
+     */
     private final CodeGeneratorUtils codeGeneratorUtils;
+
+    /**
+     * 模板组数据访问对象
+     * 用于查询模板组信息
+     */
     private final VelocityGroupMapper velocityGroupMapper;
 
+    /**
+     * 修改文件夹
+     * 递归遍历文件夹，收集所有文件并建立映射关系
+     * <p>
+     * 步骤：
+     * 1. 验证文件夹有效性
+     * 2. 遍历文件夹内容
+     * 3. 过滤忽略的文件
+     * 4. 递归处理子文件夹
+     *
+     * @param map         文件映射，Key为文件路径，Value为文件对象
+     * @param folder      要处理的文件夹
+     * @param ignoreNames 要忽略的文件名集合
+     * @throws FileOperationException 如果文件夹操作失败
+     */
     private void modifyFolder(Map<String, File> map, File folder, Set<String> ignoreNames) {
         if (folder == null) {
             throw new FileOperationException("Folder cannot be null");
@@ -58,6 +96,23 @@ public class GenerateProjectUtils {
         }
     }
 
+    /**
+     * 替换文件内容
+     * 根据模板项目信息和生成项目信息，替换文件中的配置项
+     * <p>
+     * 步骤：
+     * 1. 替换包路径
+     * 2. 替换POM文件配置
+     * 3. 替换应用配置文件
+     * 4. 替换作者信息
+     *
+     * @param fileContent         文件内容
+     * @param templateProjectInfo 模板项目信息
+     * @param generateProject     生成项目信息
+     * @param newKey              新文件路径
+     * @return 替换后的文件内容
+     * @throws FileOperationException 如果替换操作失败
+     */
     private String replaceFileContent(String fileContent, TemplateProjectInfo templateProjectInfo, GenerateProjectBo generateProject, String newKey) {
         if (fileContent == null) {
             throw new FileOperationException("File content cannot be null");
@@ -94,6 +149,19 @@ public class GenerateProjectUtils {
         return fileContent;
     }
 
+    /**
+     * 删除目录
+     * 递归删除指定路径下的所有文件和目录
+     * <p>
+     * 步骤：
+     * 1. 遍历目录树
+     * 2. 设置文件可写
+     * 3. 删除文件
+     * 4. 删除目录
+     *
+     * @param path 要删除的目录路径
+     * @throws FileOperationException 如果删除操作失败
+     */
     private void deleteDirectory(Path path) {
         if (path == null) {
             throw new FileOperationException("Path cannot be null");
@@ -130,6 +198,23 @@ public class GenerateProjectUtils {
         }
     }
 
+    /**
+     * 创建和修改文件
+     * 根据模板文件创建新文件，并替换文件内容
+     * <p>
+     * 步骤：
+     * 1. 构建新文件路径
+     * 2. 创建目录结构
+     * 3. 读取文件内容
+     * 4. 替换文件内容
+     * 5. 写入新文件
+     *
+     * @param map                 文件映射
+     * @param templateProjectInfo 模板项目信息
+     * @param generateProject     生成项目信息
+     * @param cover               是否覆盖已存在的文件
+     * @throws FileOperationException 如果文件操作失败
+     */
     private void createAndModifyFiles(Map<String, File> map, TemplateProjectInfo templateProjectInfo, GenerateProjectBo generateProject, boolean cover) {
         if (map == null || map.isEmpty()) {
             throw new FileOperationException("File map cannot be null or empty");
@@ -166,6 +251,19 @@ public class GenerateProjectUtils {
         }
     }
 
+    /**
+     * 克隆仓库并加载配置
+     * 克隆模板仓库并加载生成配置文件
+     * <p>
+     * 步骤：
+     * 1. 克隆Git仓库
+     * 2. 加载配置文件
+     *
+     * @param backendGitPath      Git仓库路径
+     * @param backendTemplatePath 模板项目路径
+     * @return 模板项目信息
+     * @throws FileOperationException 如果克隆或加载配置失败
+     */
     private TemplateProjectInfo cloneRepoAndLoadConfig(String backendGitPath, String backendTemplatePath) {
         try {
             GitUtils.cloneRepository(backendGitPath, backendTemplatePath);
@@ -175,6 +273,19 @@ public class GenerateProjectUtils {
         }
     }
 
+    /**
+     * 构建字段对象
+     * 根据字段DTO构建字段BO对象
+     * <p>
+     * 步骤：
+     * 1. 设置基本字段信息
+     * 2. 根据字段类型设置数据库列类型
+     * 3. 设置字段类型路径
+     *
+     * @param field 字段DTO
+     * @return 字段BO对象
+     * @throws FileOperationException 如果字段构建失败
+     */
     private static FieldBo buildFields(FieldDto field) {
         if (field == null) {
             throw new FileOperationException("Field cannot be null");
@@ -232,6 +343,19 @@ public class GenerateProjectUtils {
         return fieldBo;
     }
 
+    /**
+     * 构建生成项目对象
+     * 根据生成项目DTO构建生成项目BO对象
+     * <p>
+     * 步骤：
+     * 1. 设置基本项目信息
+     * 2. 设置后端项目信息
+     * 3. 构建业务模块列表
+     *
+     * @param generateProjectDto 生成项目DTO
+     * @return 生成项目BO对象
+     * @throws FileOperationException 如果项目构建失败
+     */
     public GenerateProjectBo buildGenerateProject(GenerateProjectDto generateProjectDto) {
         if (generateProjectDto == null) {
             throw new FileOperationException("Generate project DTO cannot be null");
@@ -250,6 +374,20 @@ public class GenerateProjectUtils {
         return generateProjectBo;
     }
 
+    /**
+     * 构建业务模块列表
+     * 根据业务模块DTO列表构建业务模块BO列表
+     * <p>
+     * 步骤：
+     * 1. 设置模块基本信息
+     * 2. 设置模块名称相关属性
+     * 3. 设置模块配置信息
+     * 4. 构建字段列表
+     *
+     * @param businessModuleList 业务模块DTO列表
+     * @return 业务模块BO列表
+     * @throws FileOperationException 如果模块列表构建失败
+     */
     private static List<BusinessModuleBo> buildBusinessModuleList(List<BusinessModuleDto> businessModuleList) {
         if (businessModuleList == null) {
             throw new FileOperationException("Business module list cannot be null");
@@ -280,6 +418,20 @@ public class GenerateProjectUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 写入SQL脚本
+     * 生成数据库表创建脚本并写入文件
+     * <p>
+     * 步骤：
+     * 1. 读取模板SQL脚本
+     * 2. 生成业务模块SQL脚本
+     * 3. 合并SQL脚本
+     * 4. 写入文件
+     *
+     * @param templateProjectInfo 模板项目信息
+     * @param generateProject     生成项目信息
+     * @throws FileOperationException 如果SQL脚本写入失败
+     */
     private void writeSqlScript(TemplateProjectInfo templateProjectInfo, GenerateProjectBo generateProject) {
         try {
             String databaseSqlScript = templateProjectInfo.getDatabaseSqlScript();
@@ -297,6 +449,20 @@ public class GenerateProjectUtils {
         }
     }
 
+    /**
+     * 生成项目
+     * 根据生成项目DTO生成完整的项目
+     * <p>
+     * 步骤：
+     * 1. 构建生成项目对象
+     * 2. 克隆模板仓库
+     * 3. 修改项目文件
+     * 4. 生成SQL脚本
+     * 5. 生成代码文件
+     *
+     * @param generateProject 生成项目DTO
+     * @throws FileOperationException 如果项目生成失败
+     */
     public void generate(GenerateProjectDto generateProject) {
         try {
             GenerateProjectBo generateProjectBo = buildGenerateProject(generateProject);
